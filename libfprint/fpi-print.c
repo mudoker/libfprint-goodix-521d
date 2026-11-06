@@ -117,19 +117,26 @@ static int
 is_sensor_artifact (int x, int y)
 {
   static const int artifacts[][2] = {
-    {41, 114}, {42, 115},
-    {53, 78},  {52, 78},
-    {56, 90},
-    {98, 74},
-    {104, 70},
-    {48, 132},
-    {68, 140}
+    { 53,  21},
+    { 64,  30},
+    { 67,  21},
+    { 84,  22},
+    { 93,  31},
+    { 82,  91},
+    { 81,  32},
+    { 85,  50},
+    {111, 118},
+    { 99, 144},
+    { 58,  98},
+    { 30,  91},
+    { 60,  46},
+    {104, 111},
   };
   for (size_t i = 0; i < sizeof (artifacts) / sizeof (artifacts[0]); i++)
     {
       int dx = x - artifacts[i][0];
       int dy = y - artifacts[i][1];
-      if (dx * dx + dy * dy <= 9)
+      if (dx * dx + dy * dy <= 16)
         return 1;
     }
   return 0;
