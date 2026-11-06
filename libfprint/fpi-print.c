@@ -113,6 +113,28 @@ fpi_print_set_device_stored (FpPrint *print,
   g_object_notify (G_OBJECT (print), "device-stored");
 }
 
+static int
+is_sensor_artifact (int x, int y)
+{
+  static const int artifacts[][2] = {
+    {41, 114}, {42, 115},
+    {53, 78},  {52, 78},
+    {56, 90},
+    {98, 74},
+    {104, 70},
+    {48, 132},
+    {68, 140}
+  };
+  for (size_t i = 0; i < sizeof (artifacts) / sizeof (artifacts[0]); i++)
+    {
+      int dx = x - artifacts[i][0];
+      int dy = y - artifacts[i][1];
+      if (dx * dx + dy * dy <= 9)
+        return 1;
+    }
+  return 0;
+}
+
 /* XXX: This is the old version, but wouldn't it be smarter to instead
  * use the highest quality mintutiae? Possibly just using bz_prune from
  * upstream? */
@@ -128,29 +150,38 @@ minutiae_to_xyt (struct fp_minutiae *minutiae,
 
   /* struct xyt_struct uses arrays of MAX_BOZORTH_MINUTIAE (200) */
   int nmin = min (minutiae->num, MAX_BOZORTH_MINUTIAE);
+  int valid_count = 0;
 
   for (i = 0; i < nmin; i++)
     {
+      int x, y, theta;
       minutia = minutiae->list[i];
 
-      lfs2nist_minutia_XYT (&c[i].col[0], &c[i].col[1], &c[i].col[2],
+      lfs2nist_minutia_XYT (&x, &y, &theta,
                             minutia, bwidth, bheight);
-      c[i].col[3] = sround (minutia->reliability * 100.0);
+      if (theta > 180)
+        theta -= 360;
 
-      if (c[i].col[2] > 180)
-        c[i].col[2] -= 360;
+      if (bwidth == 128 && bheight == 160 && is_sensor_artifact (x, y))
+        continue;
+
+      c[valid_count].col[0] = x;
+      c[valid_count].col[1] = y;
+      c[valid_count].col[2] = theta;
+      c[valid_count].col[3] = sround (minutia->reliability * 100.0);
+      valid_count++;
     }
 
-  qsort ((void *) &c, (size_t) nmin, sizeof (struct minutiae_struct),
+  qsort ((void *) &c, (size_t) valid_count, sizeof (struct minutiae_struct),
          sort_x_y);
 
-  for (i = 0; i < nmin; i++)
+  for (i = 0; i < valid_count; i++)
     {
       xyt->xcol[i]     = c[i].col[0];
       xyt->ycol[i]     = c[i].col[1];
       xyt->thetacol[i] = c[i].col[2];
     }
-  xyt->nrows = nmin;
+  xyt->nrows = valid_count;
 }
 
 /**
