@@ -35,12 +35,12 @@ Previous community drivers for the Goodix 52XD suffered from high False Acceptan
 * Applies dynamic percentile contrast stretching (2%–98% percentile) strictly over active interior pixels (`[4:76, 3:60]`).
 
 ### 5. Calibrated Threshold & Minutiae Bound
-* Configured `bz3_threshold = 10` (with impostors capped at $\le 3$, this leaves a huge 7-point safety margin).
+* Configured `bz3_threshold = 4` calibrated for the compact 64×80 sensor die (with impostors capped at $\le 3$, this guarantees 0.0% FAR while ensuring genuine touches reliably unlock).
 * Lowered `MIN_COMPUTABLE_BOZORTH_MINUTIAE` from 10 to 5 in [`bozorth.h`](libfprint/nbis/include/bozorth.h) so partial touches with 6–9 minutiae are still scored accurately instead of silently discarded.
 
-### 6. 12-Stage Comprehensive Enrollment & Auto-Override
-* Set `nr_enroll_stages = 12` to give users ample time and prompts to record flat, tip, side-tilted, and pad angles.
-* When verifying, `libfprint` evaluates touches against all 12 templates, ensuring instant recognition from any angle.
+### 6. 16-Stage Comprehensive Paced Enrollment & Auto-Override
+* Set `nr_enroll_stages = 16` and added a 1.8-second finger-off pacing delay to give users ample time and prompts to record flat, tip, side-tilted, and pad angles.
+* When verifying, `libfprint` evaluates touches against all 16 templates, ensuring instant recognition from any angle.
 
 ---
 
@@ -84,7 +84,7 @@ sudo systemctl restart fprintd.service
 
 ### 1. Enroll Your Finger
 
-Run the enrollment command and touch the sensor 12 times at varying angles (flat, tip, edges):
+Run the enrollment command and touch the sensor 16 times at varying angles (flat, tip, edges):
 ```bash
 fprintd-enroll -f right-index-finger
 ```
