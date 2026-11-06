@@ -325,7 +325,9 @@ fp_image_detect_minutiae_nbis_thread_func (GTask        *task,
                     image, self->width, self->height, 8,
                     self->ppmm, lfsparms);
   g_timer_stop (timer);
-  fp_dbg ("Minutiae scan completed in %f secs", g_timer_elapsed (timer, NULL));
+  fp_dbg ("Minutiae scan completed in %f secs (found %d minutiae)",
+          g_timer_elapsed (timer, NULL),
+          ret_data->minutiae ? ret_data->minutiae->num : 0);
 
   if (g_task_had_error (thread_task))
     return;
