@@ -1,3 +1,7 @@
 *.o
 *.swp
 _build
+build/
+verify_offline
+*.pgm
+*.bin
