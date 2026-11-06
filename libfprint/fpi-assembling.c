@@ -200,7 +200,7 @@ fpi_do_movement_estimation (struct fpi_frame_asmbl_ctx *ctx,
   err = do_movement_estimation (ctx, stripes, FALSE);
   rev_err = do_movement_estimation (ctx, stripes, TRUE);
   fp_dbg ("errors: %d rev: %d", err, rev_err);
-  if (err < rev_err)
+  if (err <= rev_err)
     do_movement_estimation (ctx, stripes, FALSE);
 }
 
