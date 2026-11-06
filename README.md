@@ -120,7 +120,9 @@ for ((i=1; i<=$#; i++)); do
     fi
 done
 if [[ $is_help -eq 0 ]]; then
-    [[ -n "$user" ]] && /usr/bin/fprintd-delete "$user" -f "$finger" >/dev/null 2>&1 || /usr/bin/fprintd-delete -f "$finger" >/dev/null 2>&1 || true
+    target_user="${user:-$(whoami)}"
+    /usr/bin/fprintd-delete "$target_user" -f "$finger" >/dev/null 2>&1 || true
+    sleep 0.5
 fi
 exec /usr/bin/fprintd-enroll.real "$@"
 EOF
