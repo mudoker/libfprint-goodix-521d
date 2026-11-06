@@ -585,13 +585,12 @@ static void scan_on_read_img(FpDevice* dev, guint8* data, guint16 len,
         }
         guint32 frame_mean = (guint32) (frame_sum / GOODIX52XD_FRAME_SIZE);
         if (frame_mean > 2500) {
-            fp_dbg("Empty or insufficient touch detected (mean %u > 2500), retrying...", frame_mean);
+            fp_dbg("Empty or resting frame detected (mean %u > 2500), re-arming...", frame_mean);
             g_object_unref(img);
             g_slist_free_full(self->frames, free);
             self->frames = g_slist_alloc();
-            fpi_image_device_retry_scan(img_dev, FP_DEVICE_RETRY_TOO_SHORT);
             fpi_image_device_report_finger_status(img_dev, FALSE);
-            fpi_ssm_next_state(ssm);
+            fpi_ssm_jump_to_state(ssm, SCAN_STAGE_SWITCH_TO_FDT_DOWN);
             return;
         }
 
