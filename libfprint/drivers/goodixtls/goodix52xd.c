@@ -841,7 +841,7 @@ static void dev_change_state(FpImageDevice* img_dev, FpiImageDeviceState state)
         scan_start(self);
     }
     else if (state == FPI_IMAGE_DEVICE_STATE_AWAIT_FINGER_OFF) {
-        fpi_device_add_timeout (FP_DEVICE (img_dev), 750, finger_off_timeout, NULL, NULL);
+        fpi_device_add_timeout (FP_DEVICE (img_dev), 1800, finger_off_timeout, NULL, NULL);
     }
 }
 
@@ -879,12 +879,12 @@ static void fpi_device_goodixtls52xd_class_init(
   dev_class->id_table = id_table;
 
   dev_class->scan_type = FP_SCAN_TYPE_PRESS;
-  dev_class->nr_enroll_stages = 12;
+  dev_class->nr_enroll_stages = 16;
 
-  // Secure threshold for bilinear-upscaled 128x160 minutiae matching.
-  // Hardware defect filter in fpi-print.c guarantees impostor scores are <= 3.
-  // Genuine touches score 10..29+ across 12 comprehensive enrollment templates.
-  img_dev_class->bz3_threshold = 10;
+  // Secure threshold calibrated for 64x80 sensor die with bilinear 128x160 minutiae matching.
+  // Hardware defect filter guarantees impostor scores are <= 3.
+  // Genuine touches score 4..10+ across 16 comprehensive enrollment templates.
+  img_dev_class->bz3_threshold = 4;
   img_dev_class->img_width = GOODIX52XD_WIDTH * 2;
   img_dev_class->img_height = GOODIX52XD_HEIGHT * 2;
 
