@@ -639,7 +639,6 @@ static void scan_on_read_img(FpDevice* dev, guint8* data, guint16 len,
         self->frames = g_slist_alloc();
 
         fpi_image_device_image_captured(img_dev, scaled);
-        fpi_image_device_report_finger_status(img_dev, FALSE);
 
         fpi_ssm_next_state(ssm);
     }
@@ -827,6 +826,12 @@ static void dev_activate(FpImageDevice *img_dev) {
 
 
 
+static void
+finger_off_timeout (FpDevice *device, gpointer user_data)
+{
+    fpi_image_device_report_finger_status (FP_IMAGE_DEVICE (device), FALSE);
+}
+
 static void dev_change_state(FpImageDevice* img_dev, FpiImageDeviceState state)
 {
     FpiDeviceGoodixTls52XD* self = FPI_DEVICE_GOODIXTLS52XD(img_dev);
@@ -834,6 +839,9 @@ static void dev_change_state(FpImageDevice* img_dev, FpiImageDeviceState state)
 
     if (state == FPI_IMAGE_DEVICE_STATE_AWAIT_FINGER_ON) {
         scan_start(self);
+    }
+    else if (state == FPI_IMAGE_DEVICE_STATE_AWAIT_FINGER_OFF) {
+        fpi_device_add_timeout (FP_DEVICE (img_dev), 750, finger_off_timeout, NULL, NULL);
     }
 }
 
